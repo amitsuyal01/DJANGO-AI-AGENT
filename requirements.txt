@@ -4,5 +4,7 @@ langchain-openai
 langgraph
 python-decouple
 permit
+langchain
+langgraph
 
 

@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'documents',
 ]
 
 MIDDLEWARE = [
@@ -120,3 +121,11 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+from decouple import AutoConfig
+
+env_config = AutoConfig(search_path=BASE_DIR)
+OPENAI_API_KEY = env_config('OPENAI_API_KEY', default=None)
+
+#print('OPENAI_API_KEY: ', OPENAI_API_KEY)  
