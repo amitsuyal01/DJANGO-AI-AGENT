@@ -30,15 +30,58 @@ def get_document_by_id(document_id:int, config: RunnableConfig):
     if user_id is None:
         raise Exception("Invalid user_id: {}".format(user_id))
     try:
-        query_set = Document.objects.get(active=True, id=document_id, owner_id=user_id)
+        obj = Document.objects.get(active=True, id=document_id, owner_id=user_id)
     except Document.DoesNotExist:
         return "Error: Document with id {} does not exist".format(document_id)
     except:
         raise Exception("Error: Unable to retrieve document with id {}".format(document_id))
-    else:
-        return {
-            "id": query_set.id,
-            "name": query_set.title
-            }
+    response_data = {
+        "id": obj.id,
+        "title": obj.title,
+        "content": obj.content,
+        "created_at": obj.created_at
+    }
     
-tools = [list_documents, get_document_by_id]
+
+@tool
+def create_document(title:str, content:str, config: RunnableConfig):
+    """
+    create a new document based on the arguments:
+
+    title:string max characters of 120
+    content: long form text in many paragraphs or pages
+    """
+    configurable = config.get("configurable") or config.get("metadata")
+    user_id = configurable.get("user_id")
+    if user_id is None:
+        raise Exception("Invalid user_id: {}".format(user_id))
+    obj = Document.objects.create(owner_id=user_id, title=title, content=content, active=True)
+    response_data = {
+        "id": obj.id,
+        "title": obj.title,
+        "content": obj.content,
+        "created_at": obj.created_at
+    }
+    return response_data
+
+@tool
+def delete_document_by_id(document_id:int, config: RunnableConfig):
+    """ deletes a document by id"""
+    configurable = config.get("configurable") or config.get("metadata")
+    user_id = configurable.get("user_id")
+    print("user_id: ", user_id)
+    if user_id is None:
+        raise Exception("Invalid user_id: {}".format(user_id))
+    try:
+        obj = Document.objects.get(active=True, id=document_id, owner_id=user_id)
+        obj.delete()
+    except Document.DoesNotExist:
+        return "Error: Document with id {} does not exist".format(document_id)
+    except:
+        raise Exception("Error: Unable to retrieve document with id {}".format(document_id))
+    response_data = {
+        "message": "Document with id {} has been deleted".format(document_id)
+    }
+    return response_data
+
+tools = [list_documents, get_document_by_id, create_document, delete_document_by_id]
