@@ -84,4 +84,39 @@ def delete_document_by_id(document_id:int, config: RunnableConfig):
     }
     return response_data
 
-tools = [list_documents, get_document_by_id, create_document, delete_document_by_id]
+
+@tool
+def update_document(document_id:int, title:str, content:str, config: RunnableConfig):
+    """
+    update an existing document for a user based on the arguments:
+
+    document_id: int
+    title:string max characters of 120
+    content: long form text in many paragraphs or pages
+    """
+    configurable = config.get("configurable") or config.get("metadata")
+    user_id = configurable.get("user_id")
+    if user_id is None:
+        raise Exception("Invalid user_id: {}".format(user_id))
+    try:
+        obj = Document.objects.get(active=True, id=document_id, owner_id=user_id)
+    except Document.DoesNotExist:
+        return "Error: Document with id {} does not exist".format(document_id)
+    except:
+        raise Exception("Error: Unable to retrieve document with id {}".format(document_id))
+    
+    if title is not None:
+        obj.title = title
+    if content is not None: 
+        obj.content = content
+    obj.save()
+    response_data = {
+        "id": obj.id,
+        "title": obj.title,
+        "content": obj.content,
+        "created_at": obj.created_at
+    }
+    return response_data
+
+#tool list    
+tools = [list_documents, get_document_by_id, create_document, delete_document_by_id, update_document]
