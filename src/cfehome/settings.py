@@ -129,3 +129,5 @@ env_config = AutoConfig(search_path=BASE_DIR)
 OPENAI_API_KEY = env_config('OPENAI_API_KEY', default=None)
 
 #print('OPENAI_API_KEY: ', OPENAI_API_KEY)  
+
+TMDB_API_KEY = env_config('TMDB_API_KEY', default=None)
